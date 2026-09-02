@@ -25,12 +25,7 @@ public class Nick {
                 reply("     Bye. Hope to see you again soon!");
                 break;
             } else if (input.equals("list")) {
-                String[] lines = new String[tasks.size() + 1];
-                lines[0] = "     Here are the tasks in your list:";
-                for (int i = 0; i < tasks.size(); i++) {
-                    lines[i + 1] = "     " + (i + 1) + "." + tasks.get(i).toDisplayString();
-                }
-                reply(lines);
+                reply(renderList(tasks));
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5)) - 1;
                 tasks.get(index).markAsDone();
@@ -79,6 +74,21 @@ public class Nick {
             System.out.println(line);
         }
         System.out.println(LINE);
+    }
+
+    /**
+     * Builds the lines that display the numbered list of tasks.
+     *
+     * @param tasks The tasks to render.
+     * @return The heading followed by one numbered line per task.
+     */
+    private static String[] renderList(TaskList tasks) {
+        String[] lines = new String[tasks.size() + 1];
+        lines[0] = "     Here are the tasks in your list:";
+        for (int i = 0; i < tasks.size(); i++) {
+            lines[i + 1] = "     " + (i + 1) + "." + tasks.get(i).toDisplayString();
+        }
+        return lines;
     }
 
     /**
