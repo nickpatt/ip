@@ -1,8 +1,16 @@
 import java.util.Scanner;
 
+/**
+ * A command line chatbot that lets the user add, list, mark, and unmark tasks.
+ */
 public class Nick {
     private static final String LINE = "    ____________________________________________________________";
 
+    /**
+     * Runs the chatbot, reading commands from standard input until the user types "bye".
+     *
+     * @param args Command line arguments (not used).
+     */
     public static void main(String[] args) {
         System.out.println(LINE);
         System.out.println("     Hello! I'm Nick.");
