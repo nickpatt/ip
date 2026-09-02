@@ -1,15 +1,27 @@
 import java.util.Scanner;
 
 public class Nick {
-    /** A horizontal line used to separate chatbot responses. */
     private static final String LINE = "    ____________________________________________________________";
 
     public static void main(String[] args) {
-        // Greeting shown once when the program starts.
-        String greeting = LINE + "\n" +
-                "     Hello! I'm Nick.\n" +
-                "     What can I do for you?\n" +
-                LINE;
-        System.out.println(greeting);
+        System.out.println(LINE);
+        System.out.println("     Hello! I'm Nick.");
+        System.out.println("     What can I do for you?");
+        System.out.println(LINE);
+
+        Scanner sc = new Scanner(System.in);
+        while (sc.hasNextLine()) {
+            String input = sc.nextLine();
+            if (input.equals("bye")) {
+                System.out.println(LINE);
+                System.out.println("     Bye. Hope to see you again soon!");
+                System.out.println(LINE);
+                break;
+            }
+            System.out.println(LINE);
+            System.out.println("     " + input);
+            System.out.println(LINE);
+        }
+        sc.close();
     }
 }
