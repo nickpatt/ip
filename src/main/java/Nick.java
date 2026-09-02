@@ -13,10 +13,7 @@ public class Nick {
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
-        System.out.println(LINE);
-        System.out.println("     Hello! I'm Nick.");
-        System.out.println("     What can I do for you?");
-        System.out.println(LINE);
+        reply("     Hello! I'm Nick.", "     What can I do for you?");
 
         Task[] tasks = new Task[100];
         int count = 0;
@@ -26,36 +23,30 @@ public class Nick {
             String input = sc.nextLine();
 
             if (input.equals("bye")) {
-                System.out.println(LINE);
-                System.out.println("     Bye. Hope to see you again soon!");
-                System.out.println(LINE);
+                reply("     Bye. Hope to see you again soon!");
                 break;
             } else if (input.equals("list")) {
-                System.out.println(LINE);
-                System.out.println("     Here are the tasks in your list:");
+                String[] lines = new String[count + 1];
+                lines[0] = "     Here are the tasks in your list:";
                 for (int i = 0; i < count; i++) {
-                    System.out.println("     " + (i + 1) + "." + tasks[i].toDisplayString());
+                    lines[i + 1] = "     " + (i + 1) + "." + tasks[i].toDisplayString();
                 }
-                System.out.println(LINE);
+                reply(lines);
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5)) - 1;
                 tasks[index].markAsDone();
-                System.out.println(LINE);
-                System.out.println("     Nice! I've marked this task as done:");
-                System.out.println("       " + tasks[index].toDisplayString());
-                System.out.println(LINE);
+                reply("     Nice! I've marked this task as done:",
+                        "       " + tasks[index].toDisplayString());
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7)) - 1;
                 tasks[index].markAsNotDone();
-                System.out.println(LINE);
-                System.out.println("     OK, I've marked this task as not done yet:");
-                System.out.println("       " + tasks[index].toDisplayString());
-                System.out.println(LINE);
+                reply("     OK, I've marked this task as not done yet:",
+                        "       " + tasks[index].toDisplayString());
             } else if (input.startsWith("todo ")) {
                 Task task = new Todo(input.substring(5));
                 tasks[count] = task;
                 count++;
-                printAdded(task, count);
+                replyAdded(task, count);
             } else if (input.startsWith("deadline ")) {
                 String rest = input.substring(9);
                 int byIndex = rest.indexOf(" /by ");
@@ -64,7 +55,7 @@ public class Nick {
                 Task task = new Deadline(description, by);
                 tasks[count] = task;
                 count++;
-                printAdded(task, count);
+                replyAdded(task, count);
             } else if (input.startsWith("event ")) {
                 String rest = input.substring(6);
                 int fromIndex = rest.indexOf(" /from ");
@@ -75,10 +66,23 @@ public class Nick {
                 Task task = new Event(description, from, to);
                 tasks[count] = task;
                 count++;
-                printAdded(task, count);
+                replyAdded(task, count);
             }
         }
         sc.close();
+    }
+
+    /**
+     * Prints the given lines wrapped between two divider lines.
+     *
+     * @param lines The lines to print as the chatbot's reply.
+     */
+    private static void reply(String... lines) {
+        System.out.println(LINE);
+        for (String line : lines) {
+            System.out.println(line);
+        }
+        System.out.println(LINE);
     }
 
     /**
@@ -87,11 +91,9 @@ public class Nick {
      * @param task The task that was added.
      * @param count The number of tasks currently in the list.
      */
-    private static void printAdded(Task task, int count) {
-        System.out.println(LINE);
-        System.out.println("     Got it. I've added this task:");
-        System.out.println("       " + task.toDisplayString());
-        System.out.println("     Now you have " + count + " tasks in the list.");
-        System.out.println(LINE);
+    private static void replyAdded(Task task, int count) {
+        reply("     Got it. I've added this task:",
+                "       " + task.toDisplayString(),
+                "     Now you have " + count + " tasks in the list.");
     }
 }
