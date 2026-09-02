@@ -52,7 +52,7 @@ public class Nick {
                 System.out.println("       " + tasks[index].toDisplayString());
                 System.out.println(LINE);
             } else if (input.startsWith("todo ")) {
-                Task task = new Task(input.substring(5), "T");
+                Task task = new Todo(input.substring(5));
                 tasks[count] = task;
                 count++;
                 printAdded(task, count);
@@ -61,8 +61,7 @@ public class Nick {
                 int byIndex = rest.indexOf(" /by ");
                 String description = rest.substring(0, byIndex);
                 String by = rest.substring(byIndex + 5);
-                Task task = new Task(description, "D");
-                task.setBy(by);
+                Task task = new Deadline(description, by);
                 tasks[count] = task;
                 count++;
                 printAdded(task, count);
@@ -73,9 +72,7 @@ public class Nick {
                 String description = rest.substring(0, fromIndex);
                 String from = rest.substring(fromIndex + 7, toIndex);
                 String to = rest.substring(toIndex + 5);
-                Task task = new Task(description, "E");
-                task.setFrom(from);
-                task.setTo(to);
+                Task task = new Event(description, from, to);
                 tasks[count] = task;
                 count++;
                 printAdded(task, count);
