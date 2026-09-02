@@ -15,8 +15,7 @@ public class Nick {
     public static void main(String[] args) {
         reply("     Hello! I'm Nick.", "     What can I do for you?");
 
-        Task[] tasks = new Task[100];
-        int count = 0;
+        TaskList tasks = new TaskList();
 
         Scanner sc = new Scanner(System.in);
         while (sc.hasNextLine()) {
@@ -26,36 +25,34 @@ public class Nick {
                 reply("     Bye. Hope to see you again soon!");
                 break;
             } else if (input.equals("list")) {
-                String[] lines = new String[count + 1];
+                String[] lines = new String[tasks.size() + 1];
                 lines[0] = "     Here are the tasks in your list:";
-                for (int i = 0; i < count; i++) {
-                    lines[i + 1] = "     " + (i + 1) + "." + tasks[i].toDisplayString();
+                for (int i = 0; i < tasks.size(); i++) {
+                    lines[i + 1] = "     " + (i + 1) + "." + tasks.get(i).toDisplayString();
                 }
                 reply(lines);
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5)) - 1;
-                tasks[index].markAsDone();
+                tasks.get(index).markAsDone();
                 reply("     Nice! I've marked this task as done:",
-                        "       " + tasks[index].toDisplayString());
+                        "       " + tasks.get(index).toDisplayString());
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7)) - 1;
-                tasks[index].markAsNotDone();
+                tasks.get(index).markAsNotDone();
                 reply("     OK, I've marked this task as not done yet:",
-                        "       " + tasks[index].toDisplayString());
+                        "       " + tasks.get(index).toDisplayString());
             } else if (input.startsWith("todo ")) {
                 Task task = new Todo(input.substring(5));
-                tasks[count] = task;
-                count++;
-                replyAdded(task, count);
+                tasks.add(task);
+                replyAdded(task, tasks.size());
             } else if (input.startsWith("deadline ")) {
                 String rest = input.substring(9);
                 int byIndex = rest.indexOf(" /by ");
                 String description = rest.substring(0, byIndex);
                 String by = rest.substring(byIndex + 5);
                 Task task = new Deadline(description, by);
-                tasks[count] = task;
-                count++;
-                replyAdded(task, count);
+                tasks.add(task);
+                replyAdded(task, tasks.size());
             } else if (input.startsWith("event ")) {
                 String rest = input.substring(6);
                 int fromIndex = rest.indexOf(" /from ");
@@ -64,9 +61,8 @@ public class Nick {
                 String from = rest.substring(fromIndex + 7, toIndex);
                 String to = rest.substring(toIndex + 5);
                 Task task = new Event(description, from, to);
-                tasks[count] = task;
-                count++;
-                replyAdded(task, count);
+                tasks.add(task);
+                replyAdded(task, tasks.size());
             }
         }
         sc.close();
