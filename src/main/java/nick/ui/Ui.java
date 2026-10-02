@@ -7,6 +7,8 @@ import nick.task.TaskList;
 
 /**
  * Handles all interaction with the user: reading commands and printing messages.
+ * Message methods print their content only; callers use {@link #showLine()} to
+ * frame a block of output with divider lines.
  */
 public class Ui {
     private static final String LINE = "    ____________________________________________________________";
@@ -32,17 +34,27 @@ public class Ui {
     }
 
     /**
-     * Shows the welcome message greeting the user.
+     * Prints a divider line.
+     */
+    public void showLine() {
+        System.out.println(LINE);
+    }
+
+    /**
+     * Shows the welcome message greeting the user, framed by divider lines.
      */
     public void showWelcome() {
-        reply("     Hello! I'm Nick.", "     What can I do for you?");
+        showLine();
+        System.out.println("     Hello! I'm Nick.");
+        System.out.println("     What can I do for you?");
+        showLine();
     }
 
     /**
      * Shows the farewell message shown when the user exits.
      */
     public void showGoodbye() {
-        reply("     Bye. Hope to see you again soon!");
+        System.out.println("     Bye. Hope to see you again soon!");
     }
 
     /**
@@ -51,7 +63,7 @@ public class Ui {
      * @param message The error description.
      */
     public void showError(String message) {
-        reply("     OOPS!!! " + message);
+        System.out.println("     OOPS!!! " + message);
     }
 
     /**
@@ -61,9 +73,9 @@ public class Ui {
      * @param count The number of tasks now in the list.
      */
     public void showAdded(Task task, int count) {
-        reply("     Got it. I've added this task:",
-                "       " + task.toDisplayString(),
-                "     Now you have " + count + " tasks in the list.");
+        System.out.println("     Got it. I've added this task:");
+        System.out.println("       " + task.toDisplayString());
+        System.out.println("     Now you have " + count + " tasks in the list.");
     }
 
     /**
@@ -73,9 +85,9 @@ public class Ui {
      * @param count The number of tasks now in the list.
      */
     public void showRemoved(Task task, int count) {
-        reply("     Noted. I've removed this task:",
-                "       " + task.toDisplayString(),
-                "     Now you have " + count + " tasks in the list.");
+        System.out.println("     Noted. I've removed this task:");
+        System.out.println("       " + task.toDisplayString());
+        System.out.println("     Now you have " + count + " tasks in the list.");
     }
 
     /**
@@ -84,8 +96,8 @@ public class Ui {
      * @param task The task that was marked.
      */
     public void showMarked(Task task) {
-        reply("     Nice! I've marked this task as done:",
-                "       " + task.toDisplayString());
+        System.out.println("     Nice! I've marked this task as done:");
+        System.out.println("       " + task.toDisplayString());
     }
 
     /**
@@ -94,8 +106,8 @@ public class Ui {
      * @param task The task that was unmarked.
      */
     public void showUnmarked(Task task) {
-        reply("     OK, I've marked this task as not done yet:",
-                "       " + task.toDisplayString());
+        System.out.println("     OK, I've marked this task as not done yet:");
+        System.out.println("       " + task.toDisplayString());
     }
 
     /**
@@ -104,24 +116,9 @@ public class Ui {
      * @param tasks The tasks to display.
      */
     public void showList(TaskList tasks) {
-        String[] lines = new String[tasks.size() + 1];
-        lines[0] = "     Here are the tasks in your list:";
+        System.out.println("     Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
-            lines[i + 1] = "     " + (i + 1) + "." + tasks.get(i).toDisplayString();
+            System.out.println("     " + (i + 1) + "." + tasks.get(i).toDisplayString());
         }
-        reply(lines);
-    }
-
-    /**
-     * Prints the given lines wrapped between two divider lines.
-     *
-     * @param lines The lines to print.
-     */
-    private void reply(String... lines) {
-        System.out.println(LINE);
-        for (String line : lines) {
-            System.out.println(line);
-        }
-        System.out.println(LINE);
     }
 }

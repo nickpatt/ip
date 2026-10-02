@@ -1,15 +1,64 @@
 package nick.parser;
 
 import nick.NickException;
+import nick.command.AddCommand;
+import nick.command.Command;
+import nick.command.DeleteCommand;
+import nick.command.ExitCommand;
+import nick.command.ListCommand;
+import nick.command.MarkCommand;
+import nick.task.Deadline;
+import nick.task.Event;
+import nick.task.Todo;
 
 /**
- * Makes sense of raw user input: separates the command word from its argument
+ * Makes sense of raw user input: turns a command line into a Command object,
  * and parses the structured parts of deadline and event commands.
  */
 public class Parser {
     private static final String BY_MARKER = " /by ";
     private static final String FROM_MARKER = " /from ";
     private static final String TO_MARKER = " /to ";
+
+    /**
+     * Parses a full command line into the matching Command.
+     *
+     * @param input The full command line entered by the user.
+     * @return The Command to execute.
+     * @throws NickException If the command is unknown or its argument is invalid.
+     */
+    public static Command parse(String input) throws NickException {
+        String command = commandWord(input);
+        String argument = argument(input);
+
+        switch (command) {
+        case "bye":
+            return new ExitCommand();
+        case "list":
+            return new ListCommand();
+        case "mark":
+            return new MarkCommand(argument, true);
+        case "unmark":
+            return new MarkCommand(argument, false);
+        case "delete":
+            return new DeleteCommand(argument);
+        case "todo":
+            if (argument.isEmpty()) {
+                throw new NickException("The description of a todo cannot be empty.");
+            }
+            return new AddCommand(new Todo(argument));
+        case "deadline": {
+            String[] parts = parseDeadline(argument);
+            return new AddCommand(new Deadline(parts[0], parts[1]));
+        }
+        case "event": {
+            String[] parts = parseEvent(argument);
+            return new AddCommand(new Event(parts[0], parts[1], parts[2]));
+        }
+        default:
+            throw new NickException("I'm sorry, but I don't know what that means :-(");
+        }
+    }
 
     /**
      * Returns the command word (the first token) of the input, lower-cased.
