@@ -1,3 +1,5 @@
+package nick.task;
+
 /**
  * Represents an event: a task that starts and ends at specific dates or times.
  */

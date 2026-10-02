@@ -1,3 +1,5 @@
+package nick.task;
+
 /**
  * Represents a todo: a task without any date or time attached to it.
  */

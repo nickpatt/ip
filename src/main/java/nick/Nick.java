@@ -1,4 +1,12 @@
+package nick;
+
 import java.util.Scanner;
+
+import nick.task.Deadline;
+import nick.task.Event;
+import nick.task.Task;
+import nick.task.TaskList;
+import nick.task.Todo;
 
 /**
  * A command line chatbot that lets the user add, list, mark, and unmark tasks.

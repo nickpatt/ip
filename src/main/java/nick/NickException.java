@@ -1,3 +1,5 @@
+package nick;
+
 /**
  * Signals an error caused by invalid user input, such as an unknown command
  * or a command with a missing or malformed argument.
