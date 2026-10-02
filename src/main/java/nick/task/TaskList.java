@@ -6,7 +6,23 @@ import java.util.ArrayList;
  * Holds the tasks entered by the user and provides access to them.
  */
 public class TaskList {
-    private final ArrayList<Task> tasks = new ArrayList<>();
+    private final ArrayList<Task> tasks;
+
+    /**
+     * Creates an empty task list.
+     */
+    public TaskList() {
+        this.tasks = new ArrayList<>();
+    }
+
+    /**
+     * Creates a task list containing the given tasks.
+     *
+     * @param tasks The initial tasks.
+     */
+    public TaskList(ArrayList<Task> tasks) {
+        this.tasks = tasks;
+    }
 
     /**
      * Adds a task to the list.

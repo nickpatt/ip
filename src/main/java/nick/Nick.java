@@ -18,23 +18,32 @@ import nick.ui.Ui;
 public class Nick {
     private static final String DATA_FILE = "data/nick.txt";
 
-    private static final Storage storage = new Storage(DATA_FILE);
-    private static final Ui ui = new Ui();
+    private final Storage storage;
+    private final Ui ui;
+    private TaskList tasks;
+
+    /**
+     * Creates the chatbot backed by the data file at the given path, loading any
+     * previously saved tasks.
+     *
+     * @param filePath Relative path to the data file.
+     */
+    public Nick(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath);
+        try {
+            tasks = new TaskList(storage.load());
+        } catch (IOException e) {
+            ui.showError("I couldn't load your saved tasks, starting with an empty list.");
+            tasks = new TaskList();
+        }
+    }
 
     /**
      * Runs the chatbot, reading commands until the user types "bye".
-     *
-     * @param args Command line arguments (not used).
      */
-    public static void main(String[] args) {
+    public void run() {
         ui.showWelcome();
-
-        TaskList tasks;
-        try {
-            tasks = storage.load();
-        } catch (IOException e) {
-            tasks = new TaskList();
-        }
 
         while (ui.hasNextCommand()) {
             String input = ui.readCommand();
@@ -45,7 +54,7 @@ public class Nick {
             }
 
             try {
-                handle(input, tasks);
+                handle(input);
                 storage.save(tasks);
             } catch (NickException e) {
                 ui.showError(e.getMessage());
@@ -56,13 +65,21 @@ public class Nick {
     }
 
     /**
+     * Starts the chatbot.
+     *
+     * @param args Command line arguments (not used).
+     */
+    public static void main(String[] args) {
+        new Nick(DATA_FILE).run();
+    }
+
+    /**
      * Carries out a single user command.
      *
      * @param input The full command line entered by the user.
-     * @param tasks The list of tasks to act on.
      * @throws NickException If the command is unknown or its argument is invalid.
      */
-    private static void handle(String input, TaskList tasks) throws NickException {
+    private void handle(String input) throws NickException {
         String command = Parser.commandWord(input);
         String argument = Parser.argument(input);
 

@@ -3,6 +3,7 @@ package nick.storage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import nick.task.Deadline;
@@ -55,8 +56,8 @@ public class Storage {
      * @return The tasks read from the file.
      * @throws IOException If the file exists but cannot be read.
      */
-    public TaskList load() throws IOException {
-        TaskList tasks = new TaskList();
+    public ArrayList<Task> load() throws IOException {
+        ArrayList<Task> tasks = new ArrayList<>();
         File file = new File(filePath);
         if (!file.exists()) {
             return tasks;
