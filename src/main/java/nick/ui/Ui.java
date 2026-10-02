@@ -1,5 +1,6 @@
 package nick.ui;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import nick.task.Task;
@@ -119,6 +120,18 @@ public class Ui {
         System.out.println("     Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println("     " + (i + 1) + "." + tasks.get(i).toDisplayString());
+        }
+    }
+
+    /**
+     * Shows the tasks that matched a find search, numbered.
+     *
+     * @param matches The matching tasks to display.
+     */
+    public void showFound(ArrayList<Task> matches) {
+        System.out.println("     Here are the matching tasks in your list:");
+        for (int i = 0; i < matches.size(); i++) {
+            System.out.println("     " + (i + 1) + "." + matches.get(i).toDisplayString());
         }
     }
 }

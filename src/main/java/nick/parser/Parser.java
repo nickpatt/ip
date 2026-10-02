@@ -5,6 +5,7 @@ import nick.command.AddCommand;
 import nick.command.Command;
 import nick.command.DeleteCommand;
 import nick.command.ExitCommand;
+import nick.command.FindCommand;
 import nick.command.ListCommand;
 import nick.command.MarkCommand;
 import nick.task.Deadline;
@@ -42,6 +43,11 @@ public class Parser {
             return new MarkCommand(argument, false);
         case "delete":
             return new DeleteCommand(argument);
+        case "find":
+            if (argument.isEmpty()) {
+                throw new NickException("Please tell me what keyword to search for, e.g. find book.");
+            }
+            return new FindCommand(argument);
         case "todo":
             if (argument.isEmpty()) {
                 throw new NickException("The description of a todo cannot be empty.");
