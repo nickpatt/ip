@@ -66,6 +66,12 @@ public class Nick {
             tasks.get(index).markAsNotDone();
             reply("     OK, I've marked this task as not done yet:",
                     "       " + tasks.get(index).toDisplayString());
+        } else if (input.startsWith("delete")) {
+            int index = parseTaskNumber(input.substring(6), tasks);
+            Task removed = tasks.remove(index);
+            reply("     Noted. I've removed this task:",
+                    "       " + removed.toDisplayString(),
+                    "     Now you have " + tasks.size() + " tasks in the list.");
         } else if (input.startsWith("todo")) {
             String description = input.substring(4).trim();
             if (description.isEmpty()) {
