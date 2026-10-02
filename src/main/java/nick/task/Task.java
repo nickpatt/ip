@@ -63,4 +63,14 @@ public class Task {
     public String toDisplayString() {
         return "[" + getTypeIcon() + "][" + getStatusIcon() + "] " + description;
     }
+
+    /**
+     * Returns the task encoded as a single line for saving to disk, in the form
+     * {@code <type> | <doneFlag> | <description>}. Subclasses append their own fields.
+     *
+     * @return The task as a save-format line.
+     */
+    public String toSaveFormat() {
+        return getTypeIcon() + " | " + (isDone ? "1" : "0") + " | " + description;
+    }
 }
