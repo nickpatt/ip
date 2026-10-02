@@ -1,7 +1,9 @@
 package nick;
 
+import java.io.IOException;
 import java.util.Scanner;
 
+import nick.storage.Storage;
 import nick.task.Deadline;
 import nick.task.Event;
 import nick.task.Task;
@@ -17,6 +19,9 @@ public class Nick {
     private static final String BY_MARKER = " /by ";
     private static final String FROM_MARKER = " /from ";
     private static final String TO_MARKER = " /to ";
+    private static final String DATA_FILE = "data/nick.txt";
+
+    private static final Storage storage = new Storage(DATA_FILE);
 
     /**
      * Runs the chatbot, reading commands from standard input until the user types "bye".
@@ -39,8 +44,11 @@ public class Nick {
 
             try {
                 handle(input, tasks);
+                storage.save(tasks);
             } catch (NickException e) {
                 reply("     OOPS!!! " + e.getMessage());
+            } catch (IOException e) {
+                reply("     OOPS!!! I couldn't save your tasks: " + e.getMessage());
             }
         }
         sc.close();

@@ -29,4 +29,9 @@ public class Event extends Task {
     public String toDisplayString() {
         return super.toDisplayString() + " (from: " + from + " to: " + to + ")";
     }
+
+    @Override
+    public String toSaveFormat() {
+        return super.toSaveFormat() + " | " + from + " | " + to;
+    }
 }

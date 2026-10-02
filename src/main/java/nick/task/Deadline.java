@@ -26,4 +26,9 @@ public class Deadline extends Task {
     public String toDisplayString() {
         return super.toDisplayString() + " (by: " + by + ")";
     }
+
+    @Override
+    public String toSaveFormat() {
+        return super.toSaveFormat() + " | " + by;
+    }
 }
