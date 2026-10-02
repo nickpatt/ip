@@ -1,7 +1,6 @@
 package nick;
 
 import java.io.IOException;
-import java.util.Scanner;
 
 import nick.storage.Storage;
 import nick.task.Deadline;
@@ -9,27 +8,28 @@ import nick.task.Event;
 import nick.task.Task;
 import nick.task.TaskList;
 import nick.task.Todo;
+import nick.ui.Ui;
 
 /**
- * A command line chatbot that lets the user add, list, mark, and unmark tasks.
- * Tasks can be todos, deadlines, or events.
+ * A command line chatbot that lets the user add, list, mark, unmark, and delete tasks.
+ * Tasks can be todos, deadlines, or events, and are saved to disk between runs.
  */
 public class Nick {
-    private static final String LINE = "    ____________________________________________________________";
     private static final String BY_MARKER = " /by ";
     private static final String FROM_MARKER = " /from ";
     private static final String TO_MARKER = " /to ";
     private static final String DATA_FILE = "data/nick.txt";
 
     private static final Storage storage = new Storage(DATA_FILE);
+    private static final Ui ui = new Ui();
 
     /**
-     * Runs the chatbot, reading commands from standard input until the user types "bye".
+     * Runs the chatbot, reading commands until the user types "bye".
      *
      * @param args Command line arguments (not used).
      */
     public static void main(String[] args) {
-        reply("     Hello! I'm Nick.", "     What can I do for you?");
+        ui.showWelcome();
 
         TaskList tasks;
         try {
@@ -38,12 +38,11 @@ public class Nick {
             tasks = new TaskList();
         }
 
-        Scanner sc = new Scanner(System.in);
-        while (sc.hasNextLine()) {
-            String input = sc.nextLine();
+        while (ui.hasNextCommand()) {
+            String input = ui.readCommand();
 
             if (input.equals("bye")) {
-                reply("     Bye. Hope to see you again soon!");
+                ui.showGoodbye();
                 break;
             }
 
@@ -51,12 +50,11 @@ public class Nick {
                 handle(input, tasks);
                 storage.save(tasks);
             } catch (NickException e) {
-                reply("     OOPS!!! " + e.getMessage());
+                ui.showError(e.getMessage());
             } catch (IOException e) {
-                reply("     OOPS!!! I couldn't save your tasks: " + e.getMessage());
+                ui.showError("I couldn't save your tasks: " + e.getMessage());
             }
         }
-        sc.close();
     }
 
     /**
@@ -68,23 +66,19 @@ public class Nick {
      */
     private static void handle(String input, TaskList tasks) throws NickException {
         if (input.equals("list")) {
-            reply(renderList(tasks));
+            ui.showList(tasks);
         } else if (input.startsWith("mark")) {
             int index = parseTaskNumber(input.substring(4), tasks);
             tasks.get(index).markAsDone();
-            reply("     Nice! I've marked this task as done:",
-                    "       " + tasks.get(index).toDisplayString());
+            ui.showMarked(tasks.get(index));
         } else if (input.startsWith("unmark")) {
             int index = parseTaskNumber(input.substring(6), tasks);
             tasks.get(index).markAsNotDone();
-            reply("     OK, I've marked this task as not done yet:",
-                    "       " + tasks.get(index).toDisplayString());
+            ui.showUnmarked(tasks.get(index));
         } else if (input.startsWith("delete")) {
             int index = parseTaskNumber(input.substring(6), tasks);
             Task removed = tasks.remove(index);
-            reply("     Noted. I've removed this task:",
-                    "       " + removed.toDisplayString(),
-                    "     Now you have " + tasks.size() + " tasks in the list.");
+            ui.showRemoved(removed, tasks.size());
         } else if (input.startsWith("todo")) {
             String description = input.substring(4).trim();
             if (description.isEmpty()) {
@@ -92,7 +86,7 @@ public class Nick {
             }
             Task task = new Todo(description);
             tasks.add(task);
-            replyAdded(task, tasks.size());
+            ui.showAdded(task, tasks.size());
         } else if (input.startsWith("deadline")) {
             String rest = input.substring(8).trim();
             int byIndex = rest.indexOf(BY_MARKER);
@@ -106,7 +100,7 @@ public class Nick {
             }
             Task task = new Deadline(description, by);
             tasks.add(task);
-            replyAdded(task, tasks.size());
+            ui.showAdded(task, tasks.size());
         } else if (input.startsWith("event")) {
             String rest = input.substring(5).trim();
             int fromIndex = rest.indexOf(FROM_MARKER);
@@ -123,7 +117,7 @@ public class Nick {
             }
             Task task = new Event(description, from, to);
             tasks.add(task);
-            replyAdded(task, tasks.size());
+            ui.showAdded(task, tasks.size());
         } else {
             throw new NickException("I'm sorry, but I don't know what that means :-(");
         }
@@ -155,45 +149,5 @@ public class Nick {
             throw new NickException("There is no task number " + trimmed + " in your list.");
         }
         return index;
-    }
-
-    /**
-     * Prints the given lines wrapped between two divider lines.
-     *
-     * @param lines The lines to print as the chatbot's reply.
-     */
-    private static void reply(String... lines) {
-        System.out.println(LINE);
-        for (String line : lines) {
-            System.out.println(line);
-        }
-        System.out.println(LINE);
-    }
-
-    /**
-     * Builds the lines that display the numbered list of tasks.
-     *
-     * @param tasks The tasks to render.
-     * @return The heading followed by one numbered line per task.
-     */
-    private static String[] renderList(TaskList tasks) {
-        String[] lines = new String[tasks.size() + 1];
-        lines[0] = "     Here are the tasks in your list:";
-        for (int i = 0; i < tasks.size(); i++) {
-            lines[i + 1] = "     " + (i + 1) + "." + tasks.get(i).toDisplayString();
-        }
-        return lines;
-    }
-
-    /**
-     * Prints the confirmation message shown after a task is added.
-     *
-     * @param task The task that was added.
-     * @param count The number of tasks currently in the list.
-     */
-    private static void replyAdded(Task task, int count) {
-        reply("     Got it. I've added this task:",
-                "       " + task.toDisplayString(),
-                "     Now you have " + count + " tasks in the list.");
     }
 }
