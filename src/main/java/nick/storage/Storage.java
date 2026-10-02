@@ -48,7 +48,9 @@ public class Storage {
     }
 
     /**
-     * Loads tasks from the data file.
+     * Loads tasks from the data file. If the file does not exist yet (e.g. on the
+     * first run), an empty list is returned. Lines that are corrupted are skipped
+     * rather than aborting the load.
      *
      * @return The tasks read from the file.
      * @throws IOException If the file exists but cannot be read.
@@ -56,11 +58,17 @@ public class Storage {
     public TaskList load() throws IOException {
         TaskList tasks = new TaskList();
         File file = new File(filePath);
+        if (!file.exists()) {
+            return tasks;
+        }
 
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                tasks.add(parseTask(line));
+                Task task = parseTask(line);
+                if (task != null) {
+                    tasks.add(task);
+                }
             }
         }
         return tasks;
@@ -70,25 +78,37 @@ public class Storage {
      * Parses a single save-format line into the matching task.
      *
      * @param line A line in the form {@code <type> | <doneFlag> | <description> | ...}.
-     * @return The task represented by the line.
+     * @return The task represented by the line, or {@code null} if the line is corrupted.
      */
     private Task parseTask(String line) {
         String[] parts = line.split(" \\| ");
+        if (parts.length < 3) {
+            return null;
+        }
+
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
 
         Task task;
         switch (type) {
+        case "T":
+            task = new Todo(description);
+            break;
         case "D":
+            if (parts.length < 4) {
+                return null;
+            }
             task = new Deadline(description, parts[3]);
             break;
         case "E":
+            if (parts.length < 5) {
+                return null;
+            }
             task = new Event(description, parts[3], parts[4]);
             break;
         default:
-            task = new Todo(description);
-            break;
+            return null;
         }
 
         if (isDone) {
