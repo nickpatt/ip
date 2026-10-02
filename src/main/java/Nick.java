@@ -6,6 +6,9 @@ import java.util.Scanner;
  */
 public class Nick {
     private static final String LINE = "    ____________________________________________________________";
+    private static final String BY_MARKER = " /by ";
+    private static final String FROM_MARKER = " /from ";
+    private static final String TO_MARKER = " /to ";
 
     /**
      * Runs the chatbot, reading commands from standard input until the user types "bye".
@@ -24,43 +27,107 @@ public class Nick {
             if (input.equals("bye")) {
                 reply("     Bye. Hope to see you again soon!");
                 break;
-            } else if (input.equals("list")) {
-                reply(renderList(tasks));
-            } else if (input.startsWith("mark ")) {
-                int index = Integer.parseInt(input.substring(5)) - 1;
-                tasks.get(index).markAsDone();
-                reply("     Nice! I've marked this task as done:",
-                        "       " + tasks.get(index).toDisplayString());
-            } else if (input.startsWith("unmark ")) {
-                int index = Integer.parseInt(input.substring(7)) - 1;
-                tasks.get(index).markAsNotDone();
-                reply("     OK, I've marked this task as not done yet:",
-                        "       " + tasks.get(index).toDisplayString());
-            } else if (input.startsWith("todo ")) {
-                Task task = new Todo(input.substring(5));
-                tasks.add(task);
-                replyAdded(task, tasks.size());
-            } else if (input.startsWith("deadline ")) {
-                String rest = input.substring(9);
-                int byIndex = rest.indexOf(" /by ");
-                String description = rest.substring(0, byIndex);
-                String by = rest.substring(byIndex + 5);
-                Task task = new Deadline(description, by);
-                tasks.add(task);
-                replyAdded(task, tasks.size());
-            } else if (input.startsWith("event ")) {
-                String rest = input.substring(6);
-                int fromIndex = rest.indexOf(" /from ");
-                int toIndex = rest.indexOf(" /to ");
-                String description = rest.substring(0, fromIndex);
-                String from = rest.substring(fromIndex + 7, toIndex);
-                String to = rest.substring(toIndex + 5);
-                Task task = new Event(description, from, to);
-                tasks.add(task);
-                replyAdded(task, tasks.size());
+            }
+
+            try {
+                handle(input, tasks);
+            } catch (NickException e) {
+                reply("     OOPS!!! " + e.getMessage());
             }
         }
         sc.close();
+    }
+
+    /**
+     * Carries out a single user command.
+     *
+     * @param input The full command line entered by the user.
+     * @param tasks The list of tasks to act on.
+     * @throws NickException If the command is unknown or its argument is invalid.
+     */
+    private static void handle(String input, TaskList tasks) throws NickException {
+        if (input.equals("list")) {
+            reply(renderList(tasks));
+        } else if (input.startsWith("mark")) {
+            int index = parseTaskNumber(input.substring(4), tasks);
+            tasks.get(index).markAsDone();
+            reply("     Nice! I've marked this task as done:",
+                    "       " + tasks.get(index).toDisplayString());
+        } else if (input.startsWith("unmark")) {
+            int index = parseTaskNumber(input.substring(6), tasks);
+            tasks.get(index).markAsNotDone();
+            reply("     OK, I've marked this task as not done yet:",
+                    "       " + tasks.get(index).toDisplayString());
+        } else if (input.startsWith("todo")) {
+            String description = input.substring(4).trim();
+            if (description.isEmpty()) {
+                throw new NickException("The description of a todo cannot be empty.");
+            }
+            Task task = new Todo(description);
+            tasks.add(task);
+            replyAdded(task, tasks.size());
+        } else if (input.startsWith("deadline")) {
+            String rest = input.substring(8).trim();
+            int byIndex = rest.indexOf(BY_MARKER);
+            if (byIndex < 0) {
+                throw new NickException("A deadline needs a '/by' time, e.g. deadline return book /by Sunday.");
+            }
+            String description = rest.substring(0, byIndex).trim();
+            String by = rest.substring(byIndex + BY_MARKER.length()).trim();
+            if (description.isEmpty() || by.isEmpty()) {
+                throw new NickException("A deadline needs both a description and a '/by' time.");
+            }
+            Task task = new Deadline(description, by);
+            tasks.add(task);
+            replyAdded(task, tasks.size());
+        } else if (input.startsWith("event")) {
+            String rest = input.substring(5).trim();
+            int fromIndex = rest.indexOf(FROM_MARKER);
+            int toIndex = rest.indexOf(TO_MARKER);
+            if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
+                throw new NickException("An event needs a '/from' and a '/to' time, "
+                        + "e.g. event meeting /from Mon 2pm /to 4pm.");
+            }
+            String description = rest.substring(0, fromIndex).trim();
+            String from = rest.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
+            String to = rest.substring(toIndex + TO_MARKER.length()).trim();
+            if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+                throw new NickException("An event needs a description, a '/from' time, and a '/to' time.");
+            }
+            Task task = new Event(description, from, to);
+            tasks.add(task);
+            replyAdded(task, tasks.size());
+        } else {
+            throw new NickException("I'm sorry, but I don't know what that means :-(");
+        }
+    }
+
+    /**
+     * Parses a task number argument into a zero-based index, checking that it is
+     * a number and that it refers to an existing task.
+     *
+     * @param argument The text following the mark or unmark keyword.
+     * @param tasks The current list of tasks.
+     * @return The zero-based index of the referenced task.
+     * @throws NickException If the argument is missing, not a number, or out of range.
+     */
+    private static int parseTaskNumber(String argument, TaskList tasks) throws NickException {
+        String trimmed = argument.trim();
+        if (trimmed.isEmpty()) {
+            throw new NickException("Please tell me which task number to update, e.g. mark 2.");
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(trimmed) - 1;
+        } catch (NumberFormatException e) {
+            throw new NickException("'" + trimmed + "' is not a valid task number.");
+        }
+
+        if (index < 0 || index >= tasks.size()) {
+            throw new NickException("There is no task number " + trimmed + " in your list.");
+        }
+        return index;
     }
 
     /**
