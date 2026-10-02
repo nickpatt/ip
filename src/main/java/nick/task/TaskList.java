@@ -1,14 +1,12 @@
 package nick.task;
 
+import java.util.ArrayList;
+
 /**
  * Holds the tasks entered by the user and provides access to them.
- * Assumes there will be no more than {@value #MAX_TASKS} tasks.
  */
 public class TaskList {
-    private static final int MAX_TASKS = 100;
-
-    private final Task[] tasks = new Task[MAX_TASKS];
-    private int count = 0;
+    private final ArrayList<Task> tasks = new ArrayList<>();
 
     /**
      * Adds a task to the list.
@@ -16,8 +14,7 @@ public class TaskList {
      * @param task The task to add.
      */
     public void add(Task task) {
-        tasks[count] = task;
-        count++;
+        tasks.add(task);
     }
 
     /**
@@ -27,7 +24,17 @@ public class TaskList {
      * @return The task at that position.
      */
     public Task get(int index) {
-        return tasks[index];
+        return tasks.get(index);
+    }
+
+    /**
+     * Removes and returns the task at the given zero-based index.
+     *
+     * @param index Zero-based position of the task to remove.
+     * @return The task that was removed.
+     */
+    public Task remove(int index) {
+        return tasks.remove(index);
     }
 
     /**
@@ -36,6 +43,6 @@ public class TaskList {
      * @return The task count.
      */
     public int size() {
-        return count;
+        return tasks.size();
     }
 }
