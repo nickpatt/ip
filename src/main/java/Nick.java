@@ -48,13 +48,13 @@ public class Nick {
     private static void handle(String input, TaskList tasks) throws NickException {
         if (input.equals("list")) {
             reply(renderList(tasks));
-        } else if (input.startsWith("mark ")) {
-            int index = Integer.parseInt(input.substring(5)) - 1;
+        } else if (input.startsWith("mark")) {
+            int index = parseTaskNumber(input.substring(4), tasks);
             tasks.get(index).markAsDone();
             reply("     Nice! I've marked this task as done:",
                     "       " + tasks.get(index).toDisplayString());
-        } else if (input.startsWith("unmark ")) {
-            int index = Integer.parseInt(input.substring(7)) - 1;
+        } else if (input.startsWith("unmark")) {
+            int index = parseTaskNumber(input.substring(6), tasks);
             tasks.get(index).markAsNotDone();
             reply("     OK, I've marked this task as not done yet:",
                     "       " + tasks.get(index).toDisplayString());
@@ -100,6 +100,34 @@ public class Nick {
         } else {
             throw new NickException("I'm sorry, but I don't know what that means :-(");
         }
+    }
+
+    /**
+     * Parses a task number argument into a zero-based index, checking that it is
+     * a number and that it refers to an existing task.
+     *
+     * @param argument The text following the mark or unmark keyword.
+     * @param tasks The current list of tasks.
+     * @return The zero-based index of the referenced task.
+     * @throws NickException If the argument is missing, not a number, or out of range.
+     */
+    private static int parseTaskNumber(String argument, TaskList tasks) throws NickException {
+        String trimmed = argument.trim();
+        if (trimmed.isEmpty()) {
+            throw new NickException("Please tell me which task number to update, e.g. mark 2.");
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(trimmed) - 1;
+        } catch (NumberFormatException e) {
+            throw new NickException("'" + trimmed + "' is not a valid task number.");
+        }
+
+        if (index < 0 || index >= tasks.size()) {
+            throw new NickException("There is no task number " + trimmed + " in your list.");
+        }
+        return index;
     }
 
     /**
