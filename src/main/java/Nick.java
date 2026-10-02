@@ -6,6 +6,9 @@ import java.util.Scanner;
  */
 public class Nick {
     private static final String LINE = "    ____________________________________________________________";
+    private static final String BY_MARKER = " /by ";
+    private static final String FROM_MARKER = " /from ";
+    private static final String TO_MARKER = " /to ";
 
     /**
      * Runs the chatbot, reading commands from standard input until the user types "bye".
@@ -63,21 +66,34 @@ public class Nick {
             Task task = new Todo(description);
             tasks.add(task);
             replyAdded(task, tasks.size());
-        } else if (input.startsWith("deadline ")) {
-            String rest = input.substring(9);
-            int byIndex = rest.indexOf(" /by ");
-            String description = rest.substring(0, byIndex);
-            String by = rest.substring(byIndex + 5);
+        } else if (input.startsWith("deadline")) {
+            String rest = input.substring(8).trim();
+            int byIndex = rest.indexOf(BY_MARKER);
+            if (byIndex < 0) {
+                throw new NickException("A deadline needs a '/by' time, e.g. deadline return book /by Sunday.");
+            }
+            String description = rest.substring(0, byIndex).trim();
+            String by = rest.substring(byIndex + BY_MARKER.length()).trim();
+            if (description.isEmpty() || by.isEmpty()) {
+                throw new NickException("A deadline needs both a description and a '/by' time.");
+            }
             Task task = new Deadline(description, by);
             tasks.add(task);
             replyAdded(task, tasks.size());
-        } else if (input.startsWith("event ")) {
-            String rest = input.substring(6);
-            int fromIndex = rest.indexOf(" /from ");
-            int toIndex = rest.indexOf(" /to ");
-            String description = rest.substring(0, fromIndex);
-            String from = rest.substring(fromIndex + 7, toIndex);
-            String to = rest.substring(toIndex + 5);
+        } else if (input.startsWith("event")) {
+            String rest = input.substring(5).trim();
+            int fromIndex = rest.indexOf(FROM_MARKER);
+            int toIndex = rest.indexOf(TO_MARKER);
+            if (fromIndex < 0 || toIndex < 0 || toIndex < fromIndex) {
+                throw new NickException("An event needs a '/from' and a '/to' time, "
+                        + "e.g. event meeting /from Mon 2pm /to 4pm.");
+            }
+            String description = rest.substring(0, fromIndex).trim();
+            String from = rest.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
+            String to = rest.substring(toIndex + TO_MARKER.length()).trim();
+            if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+                throw new NickException("An event needs a description, a '/from' time, and a '/to' time.");
+            }
             Task task = new Event(description, from, to);
             tasks.add(task);
             replyAdded(task, tasks.size());
