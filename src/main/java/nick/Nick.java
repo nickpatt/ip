@@ -31,7 +31,12 @@ public class Nick {
     public static void main(String[] args) {
         reply("     Hello! I'm Nick.", "     What can I do for you?");
 
-        TaskList tasks = new TaskList();
+        TaskList tasks;
+        try {
+            tasks = storage.load();
+        } catch (IOException e) {
+            tasks = new TaskList();
+        }
 
         Scanner sc = new Scanner(System.in);
         while (sc.hasNextLine()) {
