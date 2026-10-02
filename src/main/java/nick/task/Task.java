@@ -1,3 +1,5 @@
+package nick.task;
+
 /**
  * Represents a task with a description and a done status.
  * Subclasses represent specific kinds of tasks such as todos, deadlines, and events.

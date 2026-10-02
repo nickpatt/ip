@@ -1,3 +1,5 @@
+package nick.task;
+
 /**
  * Holds the tasks entered by the user and provides access to them.
  * Assumes there will be no more than {@value #MAX_TASKS} tasks.
